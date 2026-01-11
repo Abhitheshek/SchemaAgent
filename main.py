@@ -23,6 +23,14 @@ class ScrapeRequest(BaseModel):
     filter_category: Optional[str] = None
     filter_age: Optional[int] = None
 
+@app.get("/")
+async def root():
+    return {"message": "Government Scheme Scraper API is running"}
+
+@app.get("/test")
+async def test():
+    return {"status": "API is working", "cors": "enabled"}
+
 @app.post("/scrape", response_model=ScrapedData)
 async def scrape_schemes(request: ScrapeRequest):
     initial_state = {
@@ -48,7 +56,4 @@ async def scrape_schemes(request: ScrapeRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 8001))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+
