@@ -17,6 +17,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+async def root():
+    return {"message": "GovSchemes API is running!", "endpoints": ["/scrape"]}
+
 class ScrapeRequest(BaseModel):
     query: Optional[str] = None
     filter_state: Optional[str] = None
@@ -59,4 +63,6 @@ async def scrape_schemes(request: ScrapeRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    import os
+    port = int(os.environ.get("PORT", 8001))
+    uvicorn.run(app, host="0.0.0.0", port=port)
