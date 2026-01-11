@@ -59,11 +59,35 @@ async def scrape_schemes(request: ScrapeRequest):
             schemes=scraped_data
         )
     except Exception as e:
-        print(f"Error during scraping: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        error_msg = str(e)
+        print(f"Error during scraping: {error_msg}")
+        
+        # Return empty result instead of 500 error for better UX
+        if "Executable doesn't exist" in error_msg or "playwright" in error_msg.lower():
+            print("Playwright browser issue detected, returning empty results")
+            return ScrapedData(
+                query=request.query,
+                filter_state=request.filter_state,
+                filter_category=request.filter_category,
+                filter_age=request.filter_age,
+                schemes=[]
+            )
+        
+        raise HTTPException(status_code=500, detail=error_msg)
 
 if __name__ == "__main__":
     import os
+    import subprocess
+    import sys
+    
+    # Install Playwright browsers on startup
+    try:
+        print("Installing Playwright browsers...")
+        subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"], check=True)
+        print("Browsers installed successfully!")
+    except Exception as e:
+        print(f"Browser installation failed: {e}")
+    
     port = int(os.environ.get("PORT", 8001))
     print(f"Starting server on port {port}")
     uvicorn.run(app, host="0.0.0.0", port=port)
