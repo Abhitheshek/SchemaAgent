@@ -52,7 +52,7 @@ async def scrape_schemes(request: ScrapeRequest):
             filter_category=request.filter_category,
             filter_age=request.filter_age,
             schemes=result.get("scraped_data", [])
-        )
+        )   
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
